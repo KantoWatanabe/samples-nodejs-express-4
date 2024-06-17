@@ -18,9 +18,23 @@
 
 const express = require('express');
 const session = require('express-session');
+const RedisStore = require("connect-redis").default;
+const redis = require('redis');
 const mustacheExpress = require('mustache-express');
 const path = require('path');
 const { ExpressOIDC } = require('@okta/oidc-middleware');
+
+// Initialize client.
+let redisClient = redis.createClient({
+  //url: 'redis://localhost:6379'
+});
+redisClient.connect().catch(console.error)
+
+// Initialize store.
+let redisStore = new RedisStore({
+  client: redisClient,
+  prefix: "myapp:",
+});
 
 const templateDir = path.join(__dirname, '..', 'common', 'views');
 const frontendDir = path.join(__dirname, '..', 'common', 'assets');
@@ -39,6 +53,7 @@ module.exports = function SampleWebServer(sampleConfig, extraOidcOptions, homePa
   const app = express();
 
   app.use(session({
+    store: redisStore,
     secret: 'this-should-be-very-random',
     resave: true,
     saveUninitialized: false
@@ -73,6 +88,19 @@ module.exports = function SampleWebServer(sampleConfig, extraOidcOptions, homePa
   });
 
   app.get('/profile', oidc.ensureAuthenticated(), (req, res) => {
+    const headers = new Headers({ "Authorization": "Bearer " + req.userContext.tokens.access_token });
+    fetch(sampleConfig.oidc.issuer + "/v1/userinfo", { method: 'GET', headers: headers})
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        req.userContext.userinfo = data;
+        req.session.save(function(err) {
+          if (err) console.log(err)
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
     // Convert the userinfo object into an attribute array, for rendering with mustache
     const userinfo = req.userContext && req.userContext.userinfo;
     const attributes = Object.entries(userinfo);
