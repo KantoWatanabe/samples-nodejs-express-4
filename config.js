@@ -17,6 +17,9 @@ var CLIENT_SECRET = process.env.CLIENT_SECRET || '{clientSecret}';
 var SPA_CLIENT_ID = process.env.SPA_CLIENT_ID || '{spaClientId}';
 var OKTA_TESTING_DISABLEHTTPSCHECK = process.env.OKTA_TESTING_DISABLEHTTPSCHECK ? true : false;
 
+var REDISHOST = process.env.REDISHOST || 'localhost';
+var REDISPORT = process.env.REDISPORT || 6379;
+
 module.exports = {
   webServer: {
     port: 8080,
@@ -29,6 +32,10 @@ module.exports = {
       testing: {
         disableHttpsCheck: OKTA_TESTING_DISABLEHTTPSCHECK
       }
+    },
+    redis: {
+      host: REDISHOST,
+      port: REDISPORT,
     },
   },
   resourceServer: {

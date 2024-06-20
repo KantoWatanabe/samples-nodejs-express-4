@@ -24,18 +24,6 @@ const mustacheExpress = require('mustache-express');
 const path = require('path');
 const { ExpressOIDC } = require('@okta/oidc-middleware');
 
-// Initialize client.
-let redisClient = redis.createClient({
-  //url: 'redis://localhost:6379'
-});
-redisClient.connect().catch(console.error)
-
-// Initialize store.
-let redisStore = new RedisStore({
-  client: redisClient,
-  prefix: "myapp:",
-});
-
 const templateDir = path.join(__dirname, '..', 'common', 'views');
 const frontendDir = path.join(__dirname, '..', 'common', 'assets');
 
@@ -49,6 +37,21 @@ module.exports = function SampleWebServer(sampleConfig, extraOidcOptions, homePa
     scope: sampleConfig.oidc.scope,
     testing: sampleConfig.oidc.testing
   }, extraOidcOptions || {}));
+
+  // Initialize client.
+  let redisClient = redis.createClient({
+    socket: {
+      host: sampleConfig.redis.host,
+      port: sampleConfig.redis.port,
+    },
+  });
+  redisClient.connect().catch(console.error)
+
+  // Initialize store.
+  let redisStore = new RedisStore({
+    client: redisClient,
+    prefix: "myapp:",
+  });
 
   const app = express();
 
@@ -88,6 +91,7 @@ module.exports = function SampleWebServer(sampleConfig, extraOidcOptions, homePa
   });
 
   app.get('/profile', oidc.ensureAuthenticated(), (req, res) => {
+    /*
     const headers = new Headers({ "Authorization": "Bearer " + req.userContext.tokens.access_token });
     fetch(sampleConfig.oidc.issuer + "/v1/userinfo", { method: 'GET', headers: headers})
       .then(res => res.json())
@@ -101,6 +105,7 @@ module.exports = function SampleWebServer(sampleConfig, extraOidcOptions, homePa
       .catch(err => {
         console.log(err);
       });
+    */
     // Convert the userinfo object into an attribute array, for rendering with mustache
     const userinfo = req.userContext && req.userContext.userinfo;
     const attributes = Object.entries(userinfo);
