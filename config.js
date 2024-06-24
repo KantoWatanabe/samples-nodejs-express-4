@@ -20,6 +20,10 @@ var OKTA_TESTING_DISABLEHTTPSCHECK = process.env.OKTA_TESTING_DISABLEHTTPSCHECK 
 var REDISHOST = process.env.REDISHOST || 'localhost';
 var REDISPORT = process.env.REDISPORT || 6379;
 
+var APP_BASE_URL = process.env.APP_BASE_URL || 'http://localhost:8080';
+
+var GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID || 'local';
+
 module.exports = {
   webServer: {
     port: 8080,
@@ -27,7 +31,7 @@ module.exports = {
       clientId: CLIENT_ID,
       clientSecret: CLIENT_SECRET,
       issuer: ISSUER,
-      appBaseUrl: 'http://localhost:8080',
+      appBaseUrl: APP_BASE_URL,
       scope: 'openid profile email',
       testing: {
         disableHttpsCheck: OKTA_TESTING_DISABLEHTTPSCHECK
@@ -36,6 +40,9 @@ module.exports = {
     redis: {
       host: REDISHOST,
       port: REDISPORT,
+    },
+    google: {
+      projectId: GOOGLE_PROJECT_ID,
     },
   },
   resourceServer: {

@@ -23,6 +23,7 @@ const redis = require('redis');
 const mustacheExpress = require('mustache-express');
 const path = require('path');
 const { ExpressOIDC } = require('@okta/oidc-middleware');
+const logger = require('./logger');
 
 const templateDir = path.join(__dirname, '..', 'common', 'views');
 const frontendDir = path.join(__dirname, '..', 'common', 'assets');
@@ -84,6 +85,12 @@ module.exports = function SampleWebServer(sampleConfig, extraOidcOptions, homePa
   app.get('/', (req, res) => {
     const template = homePageTemplateName || 'home';
     const userinfo = req.userContext && req.userContext.userinfo;
+    console.log(req.get("X-Cloud-Trace-Context"));
+    console.log(req.get("traceparent"));
+    logger.debug(req, 'debug log');
+    logger.info(req, 'info log');
+    logger.warn(req, 'warn log');
+    logger.error(req, 'error log');
     res.render(template, {
       isLoggedIn: !!userinfo,
       userinfo: userinfo
