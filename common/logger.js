@@ -8,6 +8,7 @@ const sampleConfig = require('../config.js');
  */
 function log(req, level, message) {
   const logEntry = {};
+  logEntry["logging.googleapis.com/labels"] = {};
 
   logEntry["severity"] = level;
   logEntry["message"] = message;
@@ -19,6 +20,11 @@ function log(req, level, message) {
       logEntry["logging.googleapis.com/spanId"] = traceContext[2];
       logEntry["logging.googleapis.com/trace_sampled"] = true;
     }
+  }
+
+  if (req.userContext && req.userContext.userinfo) {
+    logEntry["logging.googleapis.com/labels"]["userSub"] = req.userContext.userinfo.sub;
+    logEntry["logging.googleapis.com/labels"]["userName"] = req.userContext.userinfo.name;
   }
 
   console.log(JSON.stringify(logEntry));
